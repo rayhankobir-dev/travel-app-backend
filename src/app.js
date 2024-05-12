@@ -30,17 +30,16 @@ app.use((req, res, next) => {
 // middleware error handler
 app.use((err, req, res, next) => {
   if (err instanceof ApiError) {
-    res.status(err.statusCode).json({
+    return res.status(err.statusCode).json({
       message: err.message,
       ...err,
     });
   }
-
   console.log(err);
-
   res.status(500).json({
     success: false,
-    message: "Internal Server Error!",
+    statusCode: 500,
+    message: "Internal Server Error",
   });
 });
 

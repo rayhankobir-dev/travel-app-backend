@@ -1,6 +1,6 @@
 import ApiError from "../helpers/ApiError.js";
-import { capitalizeString } from "../utils/utils.js";
-import { ValidationSource } from "../helpers/validator.js";
+import { ValidationSource } from "../helpers/validation.js";
+import { capitalizeString } from "../lib/utils.js";
 
 // request validation
 export const validation =
@@ -29,9 +29,11 @@ export const validation =
         });
       } else {
         error.details.map((item) => {
-          errors.push({
-            message: capitalizeString(item.message.replace(/['"]+/g, "")),
-          });
+          let fieldName = item.path[0];
+          let message = capitalizeString(item.message.replace(/['"]+/g, ""));
+          let errorObject = {};
+          errorObject[fieldName] = message;
+          errors.push(errorObject);
         });
         throw new ApiError(400, "Bad request", errors);
       }

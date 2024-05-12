@@ -36,10 +36,8 @@ export const mailConfig = {
 
 // token configuration
 export const tokenConfig = {
-  accessTokenSecret: process.env.ACCESS_TOKEN_SECRET || "nodejs",
-  accessTokenExpireIn: process.env.ACCESS_TOKEN_EXPIRY || "7d",
-  refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET || "nodejs",
-  refreshTokenExpireIn: process.env.REFRESH_TOKEN_EXPIRY || "7d",
+  secret: process.env.JWT_SECRET || "nodejs",
+  expiry: process.env.JWT_EXPRES_IN || "7d",
 };
 
 // cloudinary configuration
