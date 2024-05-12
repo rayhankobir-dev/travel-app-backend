@@ -1,11 +1,10 @@
 import mongoose from "mongoose";
 
 const locationSchema = new mongoose.Schema({
-  locationId: { type: String, required: true, unique: true },
-  location: { type: String },
+  location: { type: String, required: true },
   lon: { type: Number },
   lat: { type: Number },
-  country: { type: String },
+  country: { type: String, required: true },
   countryCode: { type: String },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

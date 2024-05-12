@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
-  orderId: { type: String, required: true, unique: true },
   tour: { type: mongoose.Schema.Types.ObjectId, ref: "Tour" },
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   orderPlacedAt: { type: Date },
