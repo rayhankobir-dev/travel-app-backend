@@ -12,10 +12,10 @@ const routes = new Router();
 
 routes.use("/auth", authRouts);
 routes.use("/role", roleRoutes);
-routes.use("/tour", tourRoutes);
 routes.use("/location", locationRoute);
 routes.use("/faq", faqRoutes);
 routes.use("/highlight", highLightRoutes);
 routes.use("/service", serviceRoutes);
+routes.use("/trip", tourRoutes);
 
 export default routes;

@@ -49,25 +49,6 @@ export const locationSchema = {
   }),
 };
 
-export const tourSchema = {
-  create: Joi.object({
-    title: Joi.string().required(),
-    overview: Joi.string().required(),
-    location: Joi.string().required(),
-    startDate: Joi.date().required(),
-    endDate: Joi.date().required(),
-    groupSize: Joi.number().required(),
-    maxAge: Joi.number().required(),
-    minAge: Joi.number().required(),
-    cost: Joi.number().required(),
-    tax: Joi.number().required(),
-    discount: Joi.number().required().default(0),
-    faqs: Joi.array().optional(),
-    service: Joi.array().required(),
-    highLights: Joi.array().required(),
-  }),
-};
-
 export const faqSchema = {
   create: Joi.object({
     question: Joi.string().required(),
@@ -107,4 +88,35 @@ export const highLightSchema = {
   delete: Joi.object({
     highlightId: Joi.string().required(),
   }),
+};
+
+export const tourSchema = {
+  create: Joi.object({
+    title: Joi.string().required(),
+    overview: Joi.string().required(),
+    startDate: Joi.date().required(),
+    endDate: Joi.date().required(),
+    groupSize: Joi.number().required(),
+    maxAge: Joi.number().required(),
+    minAge: Joi.number().required(),
+    cost: Joi.number().required(),
+    tax: Joi.number().required(),
+    discount: Joi.number().required().default(0),
+  }),
+  edit: Joi.object({
+    tripId: Joi.string().required(),
+    title: Joi.string().required(),
+    overview: Joi.string().required(),
+    startDate: Joi.date().required(),
+    endDate: Joi.date().required(),
+    groupSize: Joi.number().required(),
+    maxAge: Joi.number().required(),
+    minAge: Joi.number().required(),
+    cost: Joi.number().required(),
+    tax: Joi.number().required(),
+    discount: Joi.number().required().default(0),
+  }),
+  delete: Joi.object({
+    tripId: Joi.string().required()
+  })
 };

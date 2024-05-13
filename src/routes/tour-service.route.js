@@ -2,6 +2,7 @@ import { Router } from "express";
 import { validation } from "../middlewares/validator.middle.js";
 import { serviceSchema } from "../validation/index.js";
 import {
+  getServices,
   addService,
   deleteService,
   editService,
@@ -9,6 +10,7 @@ import {
 
 const serviceRoute = new Router();
 
+serviceRoute.get("/", getServices);
 serviceRoute.post("/", validation(serviceSchema.create), addService);
 serviceRoute.put("/", validation(serviceSchema.edit), editService);
 serviceRoute.delete("/", validation(serviceSchema.delete), deleteService);
