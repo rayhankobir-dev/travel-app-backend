@@ -6,16 +6,12 @@ import asyncHandler from "../helpers/asyncHandler.js";
 const authorization = (allowedRoles) =>
   asyncHandler(async (req, res, next) => {
     const user = req.user;
-    const userRole = user.role;
-    if (!user || !userRole) throw new ApiError("Unauthorized request");
+    const role = user.role.slug;
+    if (!user || !role) throw new ApiError("Un-authorized request");
 
-    if (!allowedRoles.some((role) => userRole.role == role))
+    if (!allowedRoles.some((allowedRole) => allowedRole == role))
       throw new ApiError(403, "Permision denied");
-
-    const roles = await Role.find().lean();
-    if (!roles.some((role) => userRole._id.toString() === role._id.toString()))
-      throw new ApiError(403, "Permission denied");
-
+    
     next();
   });
 
