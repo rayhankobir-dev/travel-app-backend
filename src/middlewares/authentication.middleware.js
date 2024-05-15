@@ -11,7 +11,7 @@ const auth = asyncHandler(async (req, res, next) => {
       res.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
 
-    if (!accessToken) throw new ApiError(401, "Unauthorized request");
+    if (!accessToken) throw new ApiError(401, "Authentication required");
     
     const payload = jwt.decode(accessToken, tokenConfig.secret);
     if (!payload) throw new ApiError(401, "Invalid Access token");

@@ -11,16 +11,11 @@ export const tourSchema = new mongoose.Schema({
   duration: { type: Number },
   minAge: { type: Number },
   maxAge: { type: Number },
-  highlights: [{ type: String }],
-  services: [{ type: String }],
   location: { type: mongoose.Schema.Types.ObjectId, ref: "Location" },
+  highlights: [{ type: mongoose.Schema.Types.ObjectId, ref: "TourHighlight" }],
+  services: [{ type: mongoose.Schema.Types.ObjectId, ref: "TourService" }],
+  activities: [{ type: mongoose.Schema.Types.ObjectId, ref: "TourActivity" }],
   faqs: [{ type: mongoose.Schema.Types.ObjectId, ref: "TourFaq" }],
-  activities: [
-    {
-      activityId: { type: mongoose.Schema.Types.ObjectId, ref: "TourActivity" },
-      order: { type: Number },
-    },
-  ],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

@@ -5,7 +5,7 @@ dotenv.config();
 // server configuration
 export const port = process.env.PORT || 3000;
 export const host = process.env.HOST || "localhost";
-export const environment = process.env.ENVIRONMENT || "production";
+export const environment = process.env.ENVIRONMENT || "developemt";
 
 // cors policy confiuration
 export const corsConfig = {
@@ -47,3 +47,14 @@ export const cloudinaryConfig = {
   apiKey: process.env.CLOUDINARY_API_KEY,
   apiSecret: process.env.CLOUDINARY_API_SECRET,
 };
+
+export const sslczConfig = {
+  storeName: process.env.STORE_NAME || "travella",
+  storeId: process.env.STORE_ID || "",
+  storePassword: process.env.STORE_PASSWORD || "",
+  isLive: process.env.MODE == "production",
+  paymentSuccessUrl: process.env.PAYMENT_SUCCESS_URL || "",
+  paymentFailureUrl: process.env.PAYMENT_FAIL_URL || "",
+  paymentCancelUrl: process.env.PAYMENT_CANCEL_URL || "",
+  paymentIpnUrl: process.env.PAYMENT_IPN_URL || ""
+}

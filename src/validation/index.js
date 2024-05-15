@@ -79,11 +79,11 @@ export const serviceSchema = {
 
 export const highLightSchema = {
   create: Joi.object({
-    highlight: Joi.string().required(),
+    title: Joi.string().required(),
   }),
   edit: Joi.object({
     highlightId: Joi.string().required(),
-    highlight: Joi.string().required(),
+    title: Joi.string().required(),
   }),
   delete: Joi.object({
     highlightId: Joi.string().required(),
@@ -102,6 +102,11 @@ export const tourSchema = {
     cost: Joi.number().required(),
     tax: Joi.number().required(),
     discount: Joi.number().required().default(0),
+    location: Joi.string().required(),
+    highlights: Joi.array().default([]).optional(),
+    services: Joi.array().default([]).optional(),
+    faqs: Joi.array().default([]).optional(),
+    activities: Joi.array().default([]).optional(),
   }),
   edit: Joi.object({
     tripId: Joi.string().required(),
@@ -120,3 +125,10 @@ export const tourSchema = {
     tripId: Joi.string().required()
   })
 };
+
+export const orderSchema = {
+  init: Joi.object({
+    tourId: Joi.string().required(),
+    totalPerson: Joi.number().required().default(1),
+  })
+}

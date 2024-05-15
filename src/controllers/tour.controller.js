@@ -5,7 +5,7 @@ import { Tour } from "../models/tour.model.js";
 
 export const getTrips = asyncHandler(async (req, res) => {
   try {
-    const trips = await Tour.find();
+    const trips = await Tour.find().populate("highlights");
 
     return res.status(200).json(new ApiResponse(200, "Success", { trips }));
   } catch(error) {
@@ -14,11 +14,13 @@ export const getTrips = asyncHandler(async (req, res) => {
 })
 
 export const createTrip = asyncHandler(async (req, res) => {
+  const {...data} = req.body;
   try {
-    const trip = await Tour.create({ ...req.body });
+    const trip = await Tour.create({ ...data });
+    const populatedTrip = await trip.populate("highlights");
 
     return res.status(201).json(new ApiResponse(201, "Trip has been successfully created", {
-      trip
+      trip: populatedTrip
     })); 
   } catch (error) {
     throw error;

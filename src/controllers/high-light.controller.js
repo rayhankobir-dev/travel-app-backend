@@ -14,7 +14,7 @@ export const getHighlights = asyncHandler(async (req, res) => {
 
 export const addHighlight = asyncHandler(async (req, res) => {
   try {
-    const highlight = await TourHighlight.create({ ...req.body });
+    const highlight = await TourHighlight.create({...req.body});
 
     return res.status(201).json(
       new ApiResponse(201, "Highlight has been successfully created", {
