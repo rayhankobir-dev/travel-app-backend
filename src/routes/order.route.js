@@ -20,7 +20,6 @@ orderRoute.post(
   auth,
   orderInitiate
 );
-
 orderRoute.post("/payment-success", paymentSuccess);
 orderRoute.post("/payment-failed", paymentFailed);
 orderRoute.post("/payment-cancel", paymentCancel);

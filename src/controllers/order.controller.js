@@ -44,7 +44,7 @@ export const orderInitiate = asyncHandler(async (req, res) => {
       product_category: "Electronic",
       product_profile: "general",
       shipping_method: "NO",
-      success_url: sslczConfig.paymentSuccessUrl + transactionId,
+      success_url: sslczConfig.paymentSuccessUrl,
       fail_url: sslczConfig.paymentFailureUrl,
       cancel_url: sslczConfig.paymentCancelUrl,
       ipn_url: sslczConfig.paymentIpnUrl,
@@ -88,7 +88,6 @@ export const orderInitiate = asyncHandler(async (req, res) => {
 });
 
 export const paymentSuccess = asyncHandler(async (req, res) => {
-  console.log(req.body);
   try {
     await Order.updateOne(
       {
@@ -105,7 +104,7 @@ export const paymentSuccess = asyncHandler(async (req, res) => {
       }
     );
 
-    return;
+    res.redirect(`http://localhost:5173/success/${req.body.tran_id}`);
   } catch (error) {
     throw error;
   }
