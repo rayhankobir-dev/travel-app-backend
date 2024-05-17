@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 export const tourSchema = new mongoose.Schema({
   title: { type: String },
+  slug: { type: String },
   overview: { type: String },
   cost: { type: Number },
   tax: { type: Number },

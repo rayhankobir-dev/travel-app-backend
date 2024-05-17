@@ -10,16 +10,20 @@ import serviceRoutes from "./tour-service.route.js";
 import orderRoutes from "./order.route.js";
 import auth from "../middlewares/authentication.middleware.js";
 import authorization from "../middlewares/authorization.middleware.js";
+import chatRoutes from "./support.route.js";
+import userRoutes from "./user.route.js";
 
 const routes = new Router();
 
 routes.use("/auth", authRouts);
-routes.use("/role", auth, authorization(["admin"]), roleRoutes);
+routes.use("/user", auth, userRoutes);
+routes.use("/role", roleRoutes);
 routes.use("/location", locationRoute);
 routes.use("/faq", faqRoutes);
 routes.use("/highlight", highLightRoutes);
 routes.use("/service", serviceRoutes);
 routes.use("/trip", tourRoutes);
 routes.use("/order", orderRoutes);
+routes.use("/chat", chatRoutes);
 
 export default routes;

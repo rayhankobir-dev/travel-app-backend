@@ -12,6 +12,7 @@ export const signupUser = asyncHandler(async (req, res) => {
   try {
     const user = await User.findOne({ email });
     const role = await Role.findOne({ slug: "user" });
+    if (!role) throw new ApiError(404, "Role doesn't exist");
 
     if (user) throw new ApiError(409, "Email already exist");
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -63,3 +64,12 @@ export const loginUser = asyncHandler(async (req, res) => {
     throw error;
   }
 });
+
+export const getProfile = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("-password").populate("role");
+    return res.status(200).json(new ApiResponse(200, "Success", {user}));
+  } catch(error) {
+    throw error;
+  }
+})
