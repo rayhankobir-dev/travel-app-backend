@@ -56,5 +56,8 @@ export const sslczConfig = {
   paymentSuccessUrl: process.env.PAYMENT_SUCCESS_URL || "",
   paymentFailureUrl: process.env.PAYMENT_FAIL_URL || "",
   paymentCancelUrl: process.env.PAYMENT_CANCEL_URL || "",
-  paymentIpnUrl: process.env.PAYMENT_IPN_URL || ""
-}
+  paymentIpnUrl: process.env.PAYMENT_IPN_URL || "",
+  successRedirectUrl: process.env.PAYMENT_SUCCESS_REDIRECT_URL || "",
+  failedRedirectUrl: process.env.PAYMENT_FAILED_REDIRECT_URL || "",
+  canceledRedirectUrl: process.env.PAYMENT_CANCEL_REDIRECT_URL || "",
+};

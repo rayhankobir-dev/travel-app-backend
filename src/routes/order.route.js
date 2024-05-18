@@ -7,6 +7,7 @@ import {
   paymentSuccess,
   paymentCancel,
   paymentFailed,
+  initiateRefund,
 } from "../controllers/order.controller.js";
 import { orderSchema, tourSchema } from "../validation/index.js";
 import auth from "../middlewares/authentication.middleware.js";
@@ -23,6 +24,7 @@ orderRoute.post(
 orderRoute.post("/payment-success", paymentSuccess);
 orderRoute.post("/payment-failed", paymentFailed);
 orderRoute.post("/payment-cancel", paymentCancel);
+orderRoute.post("/initiate-refund", initiateRefund);
 orderRoute.put("/modify-order", modifyOrder);
 
 export default orderRoute;
