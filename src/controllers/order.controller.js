@@ -88,6 +88,7 @@ export const orderInitiate = asyncHandler(async (req, res) => {
 });
 
 export const paymentSuccess = asyncHandler(async (req, res) => {
+  console.log(req.body);
   try {
     await Order.updateOne(
       {
@@ -104,7 +105,7 @@ export const paymentSuccess = asyncHandler(async (req, res) => {
       }
     );
 
-    res.redirect(`http://localhost:5173/success/${req.body.tran_id}`);
+    res.redirect(sslczConfig.successRedirectUrl);
   } catch (error) {
     throw error;
   }
@@ -112,9 +113,7 @@ export const paymentSuccess = asyncHandler(async (req, res) => {
 
 export const paymentFailed = asyncHandler(async (req, res) => {
   try {
-    return res
-      .status(200)
-      .json(new ApiResponse(200, "Payment failed please go back & try again!"));
+    res.redirect(sslczConfig.failedRedirectUrl);
   } catch (error) {
     throw error;
   }
@@ -123,9 +122,7 @@ export const paymentFailed = asyncHandler(async (req, res) => {
 export const paymentCancel = asyncHandler(async (req, res) => {
   try {
     await Order.findOneAndDelete({ transactionId: req.body.tran_id });
-    return res
-      .status(200)
-      .json(new ApiResponse(200, "You canceled the payment"));
+    res.redirect(sslczConfig.canceledRedirectUrl);
   } catch (error) {
     throw error;
   }
@@ -153,18 +150,25 @@ export const modifyOrder = asyncHandler(async (req, res) => {
   }
 });
 
-async function initiateRefund(transactionId, amount) {
-  const data = {
-    refund_ref_id: "SL4561445410",
-    tran_id: transactionId,
-  };
-  const sslcz = new SSLCommerzPayment(
-    sslczConfig.storeId,
-    sslczConfig.storePassword,
-    sslczConfig.isLive
-  );
-
-  sslcz
-    .initiateRefund({ tran_id: transactionId })
-    .then((data) => console.log(data));
-}
+export const initiateRefund = asyncHandler(async (req, res) => {
+  const { amount, refund_amount, refund_remarks, bank_tran_id, refe_id } =
+    req.body;
+  try {
+    const data = {
+      refund_amount: amount,
+      refund_remarks,
+      bank_tran_id,
+      refe_id,
+    };
+    const sslcz = new SSLCommerzPayment(
+      sslczConfig.storeId,
+      sslczConfig.storePassword,
+      sslczConfig.isLive
+    );
+    sslcz.initiateRefund(data).then((data) => {
+      console.log(data);
+    });
+  } catch (error) {
+    throw error;
+  }
+});

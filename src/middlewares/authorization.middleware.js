@@ -1,12 +1,11 @@
 import ApiError from "../helpers/ApiError.js";
-import { Role } from "../models/role.model.js";
 import asyncHandler from "../helpers/asyncHandler.js";
 
 // check authorization and give access to perform the taks
 const authorization = (allowedRoles) =>
   asyncHandler(async (req, res, next) => {
     const user = req.user;
-    const role = user.role.slug;
+    const role = user.role;
     if (!user || !role) throw new ApiError("Access denied. Authentication required");
 
     if (!allowedRoles.some((allowedRole) => allowedRole == role))
