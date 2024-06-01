@@ -1,7 +1,6 @@
 import { Router } from "express";
 
 import tourRoutes from "./tour.route.js";
-import roleRoutes from "./role.route.js";
 import authRouts from "./auth.route.js";
 import locationRoute from "./location.route.js";
 import faqRoutes from "./faq.route.js";
@@ -17,13 +16,12 @@ const routes = new Router();
 
 routes.use("/auth", authRouts);
 routes.use("/user", auth, userRoutes);
-routes.use("/role", roleRoutes);
 routes.use("/location", locationRoute);
 routes.use("/faq", faqRoutes);
 routes.use("/highlight", highLightRoutes);
 routes.use("/service", serviceRoutes);
 routes.use("/trip", tourRoutes);
 routes.use("/order", orderRoutes);
-routes.use("/chat", chatRoutes);
+routes.use("/chats", chatRoutes);
 
 export default routes;
