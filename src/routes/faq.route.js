@@ -1,6 +1,11 @@
 import { Router } from "express";
 import { validation } from "../middlewares/validator.middle.js";
-import { getQuestions, addQuestion, editQuestion, deleteQuestion } from "../controllers/faq.controller.js";
+import {
+  getQuestions,
+  addQuestion,
+  editQuestion,
+  deleteQuestion,
+} from "../controllers/faq.controller.js";
 import { faqSchema } from "../validation/index.js";
 
 const faqRoute = new Router();
