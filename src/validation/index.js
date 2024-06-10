@@ -122,13 +122,13 @@ export const tourSchema = {
     discount: Joi.number().required().default(0),
   }),
   delete: Joi.object({
-    tripId: Joi.string().required()
-  })
+    tripId: Joi.string().required(),
+  }),
 };
 
 export const orderSchema = {
   init: Joi.object({
     tourId: Joi.string().required(),
     totalPerson: Joi.number().required().default(1),
-  })
-}
+  }),
+};

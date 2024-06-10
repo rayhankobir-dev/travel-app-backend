@@ -16,12 +16,12 @@ const routes = new Router();
 
 routes.use("/auth", authRouts);
 routes.use("/user", auth, userRoutes);
-routes.use("/location", locationRoute);
-routes.use("/faq", faqRoutes);
-routes.use("/highlight", highLightRoutes);
-routes.use("/service", serviceRoutes);
-routes.use("/trip", tourRoutes);
-routes.use("/order", orderRoutes);
+routes.use("/locations", locationRoute);
+routes.use("/faqs", faqRoutes);
+routes.use("/highlights", highLightRoutes);
+routes.use("/services", serviceRoutes);
+routes.use("/trips", tourRoutes);
+routes.use("/orders", orderRoutes);
 routes.use("/chats", chatRoutes);
 
 export default routes;
