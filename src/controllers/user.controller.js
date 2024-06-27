@@ -68,3 +68,17 @@ export const getProfile = asyncHandler(async (req, res) => {
     throw error;
   }
 });
+
+export const getUsers = asyncHandler(async (req, res) => {
+  const { role } = req.query;
+  try {
+    const filter = {};
+    if (role) {
+      filter.role = role;
+    }
+    const users = await User.find(filter);
+    return res.status(200).json({ users });
+  } catch (error) {
+    throw error;
+  }
+});

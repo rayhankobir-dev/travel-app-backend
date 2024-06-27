@@ -5,10 +5,10 @@ import {
   getUsersConversiations,
 } from "../controllers/chat.controller.js";
 
-const chatRoute = new Router();
+const router = new Router();
 
-chatRoute.get("/conversiations", getDistinctUsers);
-chatRoute.get("/conversiations/:id", getUsersConversiations);
-// chatRoute.get("/conversiations/:id", getUsersConversiations);
+router.get("/conversiations", getDistinctUsers);
+router.get("/conversiations/:id", getUsersConversiations);
+// router.get("/conversiations/:id", getUsersConversiations);
 
-export default chatRoute;
+export default router;

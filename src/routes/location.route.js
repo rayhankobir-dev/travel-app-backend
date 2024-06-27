@@ -6,13 +6,15 @@ import {
   addLocation,
   deleteLocation,
   editLocation,
+  popularDestanition,
 } from "../controllers/location.controller.js";
 
-const locationRoute = new Router();
+const router = new Router();
 
-locationRoute.get("/", getLocations);
-locationRoute.post("/", validation(locationSchema.create), addLocation);
-locationRoute.put("/", validation(locationSchema.edit), editLocation);
-locationRoute.delete("/", validation(locationSchema.delete), deleteLocation);
+router.get("/", getLocations);
+router.get("/popular", popularDestanition);
+router.post("/", validation(locationSchema.create), addLocation);
+router.put("/", validation(locationSchema.edit), editLocation);
+router.delete("/", validation(locationSchema.delete), deleteLocation);
 
-export default locationRoute;
+export default router;

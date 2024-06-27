@@ -1,18 +1,35 @@
 import { Router } from "express";
+import path from "path";
 import { validation } from "../middlewares/validator.middle.js";
-import { 
-    createTrip, 
-    deleteTrip, 
-    getTrips, 
-    updateTrip
+import {
+  createTrip,
+  deleteTrip,
+  getTrips,
+  updateTrip,
+  uploadImages,
+  getTripsBySlug,
+  getPopularTours,
 } from "../controllers/tour.controller.js";
 import { tourSchema } from "../validation/index.js";
+import multer from "../middlewares/multer.js";
+import { ValidationSource } from "../helpers/validation.js";
 
-const tourRoute = new Router();
+const router = new Router();
 
-tourRoute.get("/", getTrips);
-tourRoute.post("/", validation(tourSchema.create), createTrip);
-tourRoute.put("/", validation(tourSchema.edit), updateTrip);
-tourRoute.delete("/", validation(tourSchema.delete), deleteTrip);
+// multer configure
+const uploadPath = path.join(process.cwd(), "public", "uploads", "trips");
+const upload = multer(uploadPath);
 
-export default tourRoute;
+router.get("/", getTrips);
+router.get("/popular", getPopularTours);
+router.get("/:slug", getTripsBySlug);
+router.post("/", createTrip);
+router.post("/upload-images", upload.array("images", 4), uploadImages);
+router.put("/", validation(tourSchema.edit), updateTrip);
+router.delete(
+  "/:id",
+  validation(tourSchema.id, ValidationSource.PARAM),
+  deleteTrip
+);
+
+export default router;

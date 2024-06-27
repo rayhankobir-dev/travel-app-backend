@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 export const capitalizeString = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
@@ -21,3 +23,12 @@ export function slugify(text) {
     .replace(/^-+/, "")
     .replace(/-+$/, "");
 }
+
+export const generateUid = (length) => {
+  return crypto
+    .randomBytes(length)
+    .toString("base64")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toUpperCase()
+    .slice(0, length);
+};

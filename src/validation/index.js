@@ -77,6 +77,18 @@ export const serviceSchema = {
   }),
 };
 
+export const activitySchema = {
+  create: Joi.object({
+    title: Joi.string().required(),
+    description: Joi.string().required(),
+  }),
+  edit: Joi.object({
+    title: Joi.string().required(),
+    description: Joi.string().required(),
+  }),
+  activityId: Joi.string().required(),
+};
+
 export const highLightSchema = {
   create: Joi.object({
     title: Joi.string().required(),
@@ -121,8 +133,8 @@ export const tourSchema = {
     tax: Joi.number().required(),
     discount: Joi.number().required().default(0),
   }),
-  delete: Joi.object({
-    tripId: Joi.string().required(),
+  id: Joi.object({
+    id: Joi.string().required(),
   }),
 };
 

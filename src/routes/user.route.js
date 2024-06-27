@@ -1,14 +1,15 @@
 import { Router } from "express";
 import { validation } from "../middlewares/validator.middle.js";
 import { roleSchem } from "../validation/index.js";
-import { getProfile } from "../controllers/user.controller.js";
+import { getProfile, getUsers } from "../controllers/user.controller.js";
 import auth from "../middlewares/authentication.middleware.js";
 
-const userRoute = new Router();
+const router = new Router();
 
-userRoute.get("/profile", auth, getProfile);
-userRoute.post("/", validation(roleSchem.create), getProfile);
-userRoute.put("/", validation(roleSchem.create), getProfile);
-userRoute.delete("/", validation(roleSchem.delete), getProfile);
+router.get("/", getUsers);
+router.get("/profile", auth, getProfile);
+router.post("/", validation(roleSchem.create), getProfile);
+router.put("/", validation(roleSchem.create), getProfile);
+router.delete("/", validation(roleSchem.delete), getProfile);
 
-export default userRoute;
+export default router;
