@@ -5,7 +5,7 @@ const userSockets = new Map();
 export function initializeSocket(server) {
   const io = new Server(server, {
     cors: {
-      origin: ["http://localhost:3000", "http://localhost:5173"],
+      origin: "*",
       methods: ["GET", "POST"],
     },
   });
