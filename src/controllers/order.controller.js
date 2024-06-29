@@ -176,42 +176,48 @@ export const modifyBooking = asyncHandler(async (req, res) => {
 });
 
 export const initiateRefund = asyncHandler(async (req, res) => {
-  const { amount, remarks, bankTransactionId } = req.body;
+  const { amount, reason, bankTransactionId } = req.body;
   try {
-    await proccessRefund(res, amount, remarks, bankTransactionId);
+    await proccessRefund(res, amount, reason, bankTransactionId);
   } catch (error) {
     throw error;
   }
 });
 
 const proccessRefund = async (res, amount, remark, bankTransactionId) => {
-  const data = {
-    refund_amount: amount,
-    refund_remarks: remark,
-    bank_tran_id: bankTransactionId,
-  };
-  const sslcz = new SSLCommerzPayment(
-    sslczConfig.storeId,
-    sslczConfig.storePassword,
-    sslczConfig.isLive
-  );
-  sslcz.initiateRefund(data).then(async (data) => {
-    if (data.status === "failed") {
-      res
-        .status(400)
-        .json(new ApiResponse(400, data.errorReason || "Failed to refund"));
-    }
+  try {
+    const data = {
+      refund_amount: amount,
+      refund_remarks: remark,
+      bank_tran_id: bankTransactionId,
+    };
+    const sslcz = new SSLCommerzPayment(
+      sslczConfig.storeId,
+      sslczConfig.storePassword,
+      sslczConfig.isLive
+    );
+    sslcz.initiateRefund(data).then(async (data) => {
+      if (data.status === "failed") {
+        res
+          .status(400)
+          .json(new ApiResponse(400, data.errorReason || "Failed to refund"));
+      } else {
+        await Transaction.create({
+          amount: amount,
+          transactionId: data.trans_id,
+          bankTransactionId: data.bank_tran_id,
+          transactionType: "refund",
+          status: "SUCCESS",
+          refundReason: remark,
+          refundRefId: data.refund_ref_id,
+        });
 
-    await Transaction.create({
-      transactionId: data.trans_id,
-      bankTransactionId: data.bank_tran_id,
-      transactionType: "refund",
-      status: "SUCCESS",
-      refundRefId: data.refund_ref_id,
+        res.status(200).json(new ApiResponse(200, `Amount ${amount} refunded`));
+      }
     });
-
-    res.status(200).json(new ApiResponse(200, `Amount ${amount} refunded`));
-  });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const generatePaymentLink = async (amount, booking, customer) => {

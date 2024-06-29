@@ -9,6 +9,5 @@ const router = new Router();
 
 router.get("/conversiations", getDistinctUsers);
 router.get("/conversiations/:id", getUsersConversiations);
-// router.get("/conversiations/:id", getUsersConversiations);
 
 export default router;

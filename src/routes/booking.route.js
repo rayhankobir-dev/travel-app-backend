@@ -21,6 +21,6 @@ router.post("/payment-success", paymentSuccess);
 router.post("/payment-failed", paymentFailed);
 router.post("/payment-cancel", paymentCancel);
 router.post("/payment-refund", initiateRefund);
-router.put("/modify-booking", modifyBooking);
+router.put("/modify-booking", auth, modifyBooking);
 
 export default router;

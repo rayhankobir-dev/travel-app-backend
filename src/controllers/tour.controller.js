@@ -7,8 +7,6 @@ import { Location } from "../models/location.model.js";
 export const getTrips = asyncHandler(async (req, res) => {
   const { location, from, to, maxPrice, sort } = req.query;
 
-  console.log(req.query);
-
   let filter = {};
 
   if (location) {
