@@ -10,7 +10,7 @@ const schema = new mongoose.Schema({
   perPersonCost: { type: Number, required: true },
   totalCost: { type: Number, required: true },
   bookedAt: { type: Date, default: Date.now },
-  isModified: { type: Boolean, default: false },
+  isEdited: { type: Boolean, default: false },
   modifiedAt: { type: Date },
   tx: { type: String },
   txHistory: [{ type: mongoose.Types.ObjectId, ref: "Transaction" }],

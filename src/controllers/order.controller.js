@@ -146,7 +146,7 @@ export const paymentSuccess = asyncHandler(async (req, res) => {
     booking.status = "SUCCESS";
     booking.txHistory.push(transaction._id);
 
-    if (booking.isModified) {
+    if (booking.isEdited) {
       const person = Math.floor(amount / booking.perPersonCost);
       const totalPerson = booking.totalPerson + person;
       const totalAmount = calculateCost(
@@ -160,7 +160,7 @@ export const paymentSuccess = asyncHandler(async (req, res) => {
       booking.totalCost = totalAmount.totalCost;
     }
 
-    booking.isModified = true;
+    booking.isEdited = true;
     await booking.save();
     return res.redirect(sslczConfig.successRedirectUrl);
   } catch (error) {
@@ -244,7 +244,7 @@ export const modifyBooking = asyncHandler(async (req, res) => {
     });
 
     booking.totalPerson = totalPerson;
-    booking.isModified = true;
+    booking.isEdited = true;
     booking.txHistory.push(transaction);
     await booking.save();
 

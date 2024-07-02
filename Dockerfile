@@ -1,12 +1,15 @@
-# Use the official Node.js image as the base image
-FROM node:14
+FROM ubuntu
 
-WORKDIR /usr/src/app
-COPY package*.json ./
+RUN apt-get update
+RUN apt-get install -y curl
+RUN curl -sL https://deb.nodesource.com/setup_20.x | bash
+RUN apt-get upgrade -y
+RUN sudo apt install nodejs
+
+COPY public ./public
+COPY src ./src
+COPY package.json package.json
+COPY package-lock.json package-lock.json
 
 RUN npm install
-COPY . .
-
-EXPOSE 3000
-
-CMD [ "node", "./src/server.js" ]
+ENTRYPOINT [ "node", "./src/server.js" ]
