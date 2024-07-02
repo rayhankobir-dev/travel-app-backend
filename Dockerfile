@@ -9,7 +9,8 @@ RUN apt-get install -y nodejs
 
 COPY package.json package.json
 COPY package-lock.json package-lock.json
-COPY index.js index.js
+COPY ./src ./src
+COPY ./public ./public
 
 RUN npm install
 ENTRYPOINT [ "node", "./src/server.js" ]

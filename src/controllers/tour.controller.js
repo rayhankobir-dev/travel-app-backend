@@ -182,7 +182,7 @@ export const createTrip = asyncHandler(async (req, res) => {
 export const uploadImages = asyncHandler(async (req, res) => {
   try {
     const urls = req.files.map((file) => ({
-      url: `http://localhost:3000/uploads/trips/${file.filename}`,
+      url: `https://travel-app-backend-1-ra9w.onrender.com/uploads/trips/${file.filename}`,
     }));
     res.status(200).json({ urls, message: "Files uploaded successfully" });
   } catch (error) {
