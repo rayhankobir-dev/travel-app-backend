@@ -1,7 +1,7 @@
 import ApiError from "../helpers/ApiError.js";
 import ApiResponse from "../helpers/ApiResponse.js";
 import asyncHandler from "../helpers/asyncHandler.js";
-import { Transaction } from "../models/transaction.js";
+import { Transaction } from "../models/transaction.model.js";
 
 export const getAllTransaction = asyncHandler(async (req, res) => {
   const { type } = req.query;

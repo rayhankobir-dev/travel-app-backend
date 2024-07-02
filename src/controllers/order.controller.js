@@ -2,7 +2,7 @@ import ApiError from "../helpers/ApiError.js";
 import ApiResponse from "../helpers/ApiResponse.js";
 import asyncHandler from "../helpers/asyncHandler.js";
 import { Booking } from "../models/booking.model.js";
-import { Transaction } from "../models/transaction.js";
+import { Transaction } from "../models/transaction.model.js";
 import { Tour } from "../models/tour.model.js";
 import SSLCommerzPayment from "sslcommerz-lts";
 import { sslczConfig } from "../config.js";
@@ -18,7 +18,31 @@ export const getBookings = asyncHandler(async (req, res) => {
 
     return res.status(200).json(new ApiResponse(200, "Success", { bookings }));
   } catch (error) {
+    return res.status(500).json(new ApiError(500, error.message));
+  }
+});
+
+export const getBookingById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
+    const booking = await Booking.findById(id);
+    if (!booking) throw new ApiError(400, "Booking not found");
+    res.status(200).json(new ApiResponse(200, "Success", { booking }));
+  } catch (error) {
     throw error;
+  }
+});
+
+export const getUserBookings = asyncHandler(async (req, res) => {
+  try {
+    const bookings = await Booking.find({ user: req.user })
+      .populate("tour")
+      .populate("user")
+      .populate("txHistory");
+
+    return res.status(200).json(new ApiResponse(200, "Success", { bookings }));
+  } catch (error) {
+    return res.status(500).json(new ApiError(500, error.message));
   }
 });
 
@@ -29,7 +53,7 @@ const calculateCost = (perPersonCost, totalPerson, tax) => {
   return { total, totalCost, appliedTaxAmount };
 };
 
-export const orderInitiate = asyncHandler(async (req, res) => {
+export const bookingInitiate = asyncHandler(async (req, res) => {
   const { tourId, totalPerson } = req.body;
   try {
     const trip = await Tour.findById(tourId).lean();
@@ -98,7 +122,7 @@ export const orderInitiate = asyncHandler(async (req, res) => {
       );
     });
   } catch (error) {
-    throw error;
+    return res.status(500).json(new ApiError(500, error.message));
   }
 });
 
@@ -116,13 +140,29 @@ export const paymentSuccess = asyncHandler(async (req, res) => {
       status: "SUCCESS",
     });
 
-    const booking = await Booking.findOne({ tx: tran_id });
+    const booking = await Booking.findOne({ tx: tran_id }).populate(
+      "txHistory"
+    );
     booking.status = "SUCCESS";
-    booking.isModified = true;
     booking.txHistory.push(transaction._id);
 
+    if (booking.isModified) {
+      const person = Math.floor(amount / booking.perPersonCost);
+      const totalPerson = booking.totalPerson + person;
+      const totalAmount = calculateCost(
+        booking.perPersonCost,
+        totalPerson,
+        booking.tax
+      );
+
+      booking.totalPerson = totalPerson;
+      booking.appliedTaxAmount = totalAmount.appliedTaxAmount;
+      booking.totalCost = totalAmount.totalCost;
+    }
+
+    booking.isModified = true;
     await booking.save();
-    res.redirect(sslczConfig.successRedirectUrl);
+    return res.redirect(sslczConfig.successRedirectUrl);
   } catch (error) {
     throw error;
   }
@@ -130,43 +170,85 @@ export const paymentSuccess = asyncHandler(async (req, res) => {
 
 export const paymentFailed = asyncHandler(async (req, res) => {
   try {
-    res.redirect(sslczConfig.failedRedirectUrl);
+    return res.redirect(sslczConfig.failedRedirectUrl);
   } catch (error) {
-    throw error;
+    return res.status(500).json(new ApiError(500, error.message));
   }
 });
 
 export const paymentCancel = asyncHandler(async (req, res) => {
   try {
-    res.redirect(sslczConfig.canceledRedirectUrl);
+    return res.redirect(sslczConfig.canceledRedirectUrl);
   } catch (error) {
-    throw error;
+    return res.status(500).json(new ApiError(500, error.message));
   }
 });
 
 export const modifyBooking = asyncHandler(async (req, res) => {
   const { bookingId, totalPerson } = req.body;
-  try {
-    const booking = await Booking.findById(bookingId).populate("tour user");
-    const difference = totalPerson - booking.totalPerson;
 
-    if (difference < 0) {
-      const refundAmount = -difference * booking.perPersonCost;
-      await initiateRefund(booking.tx, refundAmount);
-    } else if (difference > 0) {
-      const extraCost = difference * booking.perPersonCost;
+  try {
+    const booking = await Booking.findById(bookingId).populate(
+      "tour user txHistory"
+    );
+
+    const personDifference = totalPerson - booking.totalPerson;
+    if (personDifference == 0)
+      throw new ApiError(400, "Please cancel the order instead modify");
+
+    if (personDifference > 0) {
+      const cost = calculateCost(
+        booking.perPersonCost,
+        personDifference,
+        booking.tax
+      );
+
       const paymentLink = await generatePaymentLink(
-        extraCost,
+        booking.tx,
+        cost.totalCost,
         booking,
         booking.user
       );
-      return res.json({ paymentLink });
+
+      return res.json(
+        new ApiResponse(200, "Payment required for additional persons", {
+          paymentLink,
+        })
+      );
     }
+
+    const amountToRefund = -personDifference * booking.perPersonCost;
+    const remark = `Refund for reducing ${-personDifference} persons from booking`;
+    const bankTransactionId = booking.txHistory[0]?.bankTransactionId;
+
+    // Initiate the refund process
+    const refundResponse = await processRefund(
+      amountToRefund,
+      remark,
+      bankTransactionId
+    );
+
+    if (refundResponse.status !== "success")
+      throw new ApiError(
+        400,
+        refundResponse.errorReason || "Failed to refund extra amount"
+      );
+
+    const transaction = await Transaction.create({
+      transactionId: booking.tx,
+      bankTransactionId: bankTransactionId,
+      transactionType: "refund",
+      amount: amountToRefund,
+      refundReason: remark,
+      status: "SUCCESS",
+    });
 
     booking.totalPerson = totalPerson;
     booking.isModified = true;
+    booking.txHistory.push(transaction);
     await booking.save();
 
+    // Return success response
     return res.json(
       new ApiResponse(200, "Booking modified successfully", { booking })
     );
@@ -175,54 +257,80 @@ export const modifyBooking = asyncHandler(async (req, res) => {
   }
 });
 
-export const initiateRefund = asyncHandler(async (req, res) => {
-  const { amount, reason, bankTransactionId } = req.body;
+export const cancelBooking = asyncHandler(async (req, res) => {
+  const { id } = req.params;
   try {
-    await proccessRefund(res, amount, reason, bankTransactionId);
+    const booking = await Booking.findById(id).populate("tour user txHistory");
+    if (!booking) throw new ApiError(404, "Booking not found");
+    if (booking.status !== "SUCCESS")
+      throw new ApiError(400, "Booking should not canclled or pending");
+
+    const bookingAmount = booking.txHistory.reduce(
+      (sum, item) => item?.storeAmount,
+      0
+    );
+
+    const response = await processRefund(
+      bookingAmount,
+      "Booking cancalletion.",
+      booking.txHistory[0].bankTransactionId
+    );
+
+    if (response.status !== "success")
+      throw new ApiError(400, "Failed to cancel booking");
+
+    const transaction = await Transaction.create({
+      transactionId: response.trans_id,
+      bankTransactionId: response.bank_tran_id,
+      transactionType: "refund",
+      status: "SUCCESS",
+      amount: bookingAmount,
+      refundReason: "Booking cancalletion.",
+      refundRefId: response.refund_ref_id,
+    });
+
+    booking.status = "CANCELLED";
+    booking.txHistory.push(transaction);
+    await booking.save();
+    res
+      .status(200)
+      .json(new ApiResponse(200, "Cancelled the booking", { booking }));
   } catch (error) {
     throw error;
   }
 });
 
-const proccessRefund = async (res, amount, remark, bankTransactionId) => {
+export const initiateRefund = asyncHandler(async (req, res) => {
+  const { amount, reason, bankTransactionId } = req.body;
   try {
-    const data = {
-      refund_amount: amount,
-      refund_remarks: remark,
-      bank_tran_id: bankTransactionId,
-    };
-    const sslcz = new SSLCommerzPayment(
-      sslczConfig.storeId,
-      sslczConfig.storePassword,
-      sslczConfig.isLive
-    );
-    sslcz.initiateRefund(data).then(async (data) => {
-      if (data.status === "failed") {
-        res
-          .status(400)
-          .json(new ApiResponse(400, data.errorReason || "Failed to refund"));
-      } else {
-        await Transaction.create({
-          amount: amount,
-          transactionId: data.trans_id,
-          bankTransactionId: data.bank_tran_id,
-          transactionType: "refund",
-          status: "SUCCESS",
-          refundReason: remark,
-          refundRefId: data.refund_ref_id,
-        });
-
-        res.status(200).json(new ApiResponse(200, `Amount ${amount} refunded`));
-      }
-    });
+    const response = await processRefund(amount, reason, bankTransactionId);
   } catch (error) {
-    console.log(error);
+    return res.status(500).json(new ApiError(500, error.message));
   }
+});
+
+const processRefund = async (amount, remark, bankTransactionId) => {
+  const data = {
+    refund_amount: amount,
+    refund_remarks: remark,
+    bank_tran_id: bankTransactionId,
+  };
+
+  const sslcz = new SSLCommerzPayment(
+    sslczConfig.storeId,
+    sslczConfig.storePassword,
+    sslczConfig.isLive
+  );
+
+  return await sslcz.initiateRefund(data);
 };
 
-const generatePaymentLink = async (amount, booking, customer) => {
-  const transactionId = uuidv4();
-
+const generatePaymentLink = async (
+  transactionId,
+  amount,
+  booking,
+  customer
+) => {
   const data = {
     total_amount: amount,
     currency: process.env.CURRENCY || "BDT",
@@ -257,10 +365,6 @@ const generatePaymentLink = async (amount, booking, customer) => {
   if (response?.status === "FAILED") {
     throw new ApiError(400, response.failedreason);
   }
-
-  await Booking.findByIdAndUpdate(booking._id, {
-    $set: { tx: transactionId },
-  });
 
   return response.GatewayPageURL;
 };

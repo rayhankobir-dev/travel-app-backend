@@ -43,13 +43,44 @@ export const getTrips = asyncHandler(async (req, res) => {
   }
 
   try {
-    const trips = await Tour.find(filter)
-      .sort(sortOption)
-      .populate("location")
-      .select("-activities -services -faqs -highlights");
-    res.json({ data: { trips } });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const trips = await Tour.aggregate([
+      { $match: filter || {} },
+      {
+        $lookup: {
+          from: "bookings",
+          localField: "_id",
+          foreignField: "tour",
+          as: "bookings",
+        },
+      },
+      {
+        $addFields: {
+          bookingCount: { $size: "$bookings" },
+        },
+      },
+      {
+        $project: {
+          activities: 0,
+          services: 0,
+          faqs: 0,
+          highlights: 0,
+          bookings: 0, // Exclude the bookings array if you only want the count
+        },
+      },
+      {
+        $lookup: {
+          from: "locations",
+          localField: "location",
+          foreignField: "_id",
+          as: "location",
+        },
+      },
+      { $unwind: "$location" },
+    ]);
+
+    res.status(200).json(new ApiResponse(200, "Success", { trips }));
+  } catch (error) {
+    throw error;
   }
 });
 
@@ -57,10 +88,40 @@ export const getTripsBySlug = asyncHandler(async (req, res) => {
   const { slug } = req.params;
 
   try {
-    const trip = await Tour.findOne({ slug: slug }).populate("location");
-    if (!trip) throw new ApiError(404, "Trip doesn't exist");
+    const trip = await Tour.aggregate([
+      { $match: { slug } },
+      {
+        $lookup: {
+          from: "bookings",
+          localField: "_id",
+          foreignField: "tour",
+          as: "bookings",
+        },
+      },
+      {
+        $addFields: {
+          bookingCount: { $size: "$bookings" },
+        },
+      },
+      {
+        $lookup: {
+          from: "locations",
+          localField: "location",
+          foreignField: "_id",
+          as: "location",
+        },
+      },
+      {
+        $unwind: "$location",
+      },
+    ]);
 
-    return res.status(200).json(new ApiResponse(200, "Success", { trip }));
+    if (!trip || trip.length === 0)
+      throw new ApiError(404, "Trip doesn't exist");
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Success", { trip: trip[0] }));
   } catch (error) {
     throw error;
   }
@@ -68,11 +129,40 @@ export const getTripsBySlug = asyncHandler(async (req, res) => {
 
 export const getPopularTours = asyncHandler(async (req, res) => {
   try {
-    const trips = await Tour.find().sort({ bookings: -1 }).limit(10);
+    const trips = await Tour.aggregate([
+      {
+        $lookup: {
+          from: "bookings",
+          localField: "_id",
+          foreignField: "tour",
+          as: "bookings",
+        },
+      },
+      {
+        $addFields: {
+          bookingCount: { $size: "$bookings" },
+        },
+      },
+      {
+        $project: {
+          activities: 0,
+          services: 0,
+          faqs: 0,
+          highlights: 0,
+          bookings: 0,
+        },
+      },
+      {
+        $sort: { bookingCount: -1 },
+      },
+      {
+        $limit: 10,
+      },
+    ]);
 
     return res.status(200).json(new ApiResponse(200, "Success", { trips }));
   } catch (error) {
-    throw error;
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -102,18 +192,18 @@ export const uploadImages = asyncHandler(async (req, res) => {
 });
 
 export const updateTrip = asyncHandler(async (req, res) => {
-  const { tripId, ...data } = req.body;
+  const { id } = req.params;
   try {
-    const trip = await Tour.findById(tripId);
+    const trip = await Tour.findById(id);
     if (!trip) throw new ApiError(404, "Trip doesn't exist");
 
-    const updatedTrip = await Tour.findByIdAndUpdate(tripId, data, {
+    const updatedTrip = await Tour.findByIdAndUpdate(trip._id, req.body, {
       new: true,
     });
 
     return res.status(200).json(
       new ApiResponse(200, "Trip has been successfully updated", {
-        trip: updateTrip,
+        trip: updatedTrip,
       })
     );
   } catch (error) {
@@ -137,5 +227,18 @@ export const deleteTrip = asyncHandler(async (req, res) => {
     );
   } catch (error) {
     throw error;
+  }
+});
+
+export const getTripById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
+    const trip = await Tour.findById(id).populate("location");
+
+    if (!trip) throw new ApiError(400, "Trip doesn't exist");
+    return res.status(200).json(new ApiResponse(200, "Success", { trip }));
+  } catch (error) {
+    console.error("Error fetching trip:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 });

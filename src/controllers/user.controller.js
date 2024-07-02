@@ -82,3 +82,52 @@ export const getUsers = asyncHandler(async (req, res) => {
     throw error;
   }
 });
+
+export const updateProfile = asyncHandler(async (req, res) => {
+  const { fullName, email, dob, phone, address } = req.body;
+  try {
+    const user = await User.findByIdAndUpdate(req.user._id, {
+      fullName,
+      email,
+      dob,
+      phone,
+      address,
+    });
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Profile successfully updated", { user }));
+  } catch (error) {
+    throw error;
+  }
+});
+
+export const changePassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  try {
+    const user = await User.findById(req.user._id);
+    const isMatched = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatched) throw new ApiError(400, "Inccorect current password");
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await User.findByIdAndUpdate(req.user.id, {
+      password: hashedPassword,
+    });
+
+    return res.status(200).json(new ApiResponse(200, "Password is updated"));
+  } catch (error) {
+    throw error;
+  }
+});
+
+export const deleteUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findById(id);
+    if (!user) throw new ApiError(400, "User not found");
+
+    await User.findByIdAndDelete(user._id);
+    res.status(200).json(new ApiResponse(200, "Successfully user deleted"));
+  } catch (error) {
+    throw error;
+  }
+});

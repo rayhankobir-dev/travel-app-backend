@@ -9,6 +9,7 @@ import {
   uploadImages,
   getTripsBySlug,
   getPopularTours,
+  getTripById,
 } from "../controllers/tour.controller.js";
 import { tourSchema } from "../validation/index.js";
 import multer from "../middlewares/multer.js";
@@ -23,9 +24,10 @@ const upload = multer(uploadPath);
 router.get("/", getTrips);
 router.get("/popular", getPopularTours);
 router.get("/:slug", getTripsBySlug);
+router.get("/trip/:id", getTripById);
 router.post("/", createTrip);
 router.post("/upload-images", upload.array("images", 4), uploadImages);
-router.put("/", validation(tourSchema.edit), updateTrip);
+router.put("/:id", updateTrip);
 router.delete(
   "/:id",
   validation(tourSchema.id, ValidationSource.PARAM),
