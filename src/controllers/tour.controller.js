@@ -186,8 +186,7 @@ export const uploadImages = asyncHandler(async (req, res) => {
     }));
     res.status(200).json({ urls, message: "Files uploaded successfully" });
   } catch (error) {
-    console.error("Error uploading files:", error);
-    res.status(500).json({ error: "Failed to upload files" });
+    throw error;
   }
 });
 
@@ -213,8 +212,6 @@ export const updateTrip = asyncHandler(async (req, res) => {
 
 export const deleteTrip = asyncHandler(async (req, res) => {
   const { id } = req.params;
-
-  console.log(id);
   try {
     const trip = await Tour.findById(id);
     if (!trip) throw new ApiError(404, "Trip doesn't exist");
@@ -238,7 +235,6 @@ export const getTripById = asyncHandler(async (req, res) => {
     if (!trip) throw new ApiError(400, "Trip doesn't exist");
     return res.status(200).json(new ApiResponse(200, "Success", { trip }));
   } catch (error) {
-    console.error("Error fetching trip:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    throw error;
   }
 });

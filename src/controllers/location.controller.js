@@ -53,7 +53,6 @@ export const popularDestanition = asyncHandler(async (req, res) => {
 
     console.log(popularLocations);
   } catch (error) {
-    console.error("Error in popularDestanition:", error);
     throw error;
   }
 });

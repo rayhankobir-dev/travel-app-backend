@@ -18,7 +18,7 @@ export const getBookings = asyncHandler(async (req, res) => {
 
     return res.status(200).json(new ApiResponse(200, "Success", { bookings }));
   } catch (error) {
-    return res.status(500).json(new ApiError(500, error.message));
+    throw error;
   }
 });
 
@@ -42,7 +42,7 @@ export const getUserBookings = asyncHandler(async (req, res) => {
 
     return res.status(200).json(new ApiResponse(200, "Success", { bookings }));
   } catch (error) {
-    return res.status(500).json(new ApiError(500, error.message));
+    throw error;
   }
 });
 
@@ -122,7 +122,7 @@ export const bookingInitiate = asyncHandler(async (req, res) => {
       );
     });
   } catch (error) {
-    return res.status(500).json(new ApiError(500, error.message));
+    throw error;
   }
 });
 
@@ -172,7 +172,7 @@ export const paymentFailed = asyncHandler(async (req, res) => {
   try {
     return res.redirect(sslczConfig.failedRedirectUrl);
   } catch (error) {
-    return res.status(500).json(new ApiError(500, error.message));
+    throw error;
   }
 });
 
@@ -180,7 +180,7 @@ export const paymentCancel = asyncHandler(async (req, res) => {
   try {
     return res.redirect(sslczConfig.canceledRedirectUrl);
   } catch (error) {
-    return res.status(500).json(new ApiError(500, error.message));
+    throw error;
   }
 });
 
@@ -305,7 +305,7 @@ export const initiateRefund = asyncHandler(async (req, res) => {
   try {
     const response = await processRefund(amount, reason, bankTransactionId);
   } catch (error) {
-    return res.status(500).json(new ApiError(500, error.message));
+    throw error;
   }
 });
 

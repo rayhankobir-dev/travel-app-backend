@@ -108,8 +108,7 @@ export const getContent = asyncHandler(async (req, res) => {
 
     res.status(200).json(new ApiResponse(200, "Success", dashboardData));
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Server error" });
+    throw error;
   }
 });
 
