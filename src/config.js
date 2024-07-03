@@ -52,7 +52,7 @@ export const sslczConfig = {
   storeName: process.env.STORE_NAME || "travella",
   storeId: process.env.STORE_ID || "",
   storePassword: process.env.STORE_PASSWORD || "",
-  isLive: process.env.MODE == "production",
+  isLive: process.env.STORE_IS_LIVE || false,
   paymentSuccessUrl: process.env.PAYMENT_SUCCESS_URL || "",
   paymentFailureUrl: process.env.PAYMENT_FAIL_URL || "",
   paymentCancelUrl: process.env.PAYMENT_CANCEL_URL || "",
