@@ -48,11 +48,12 @@ export const cloudinaryConfig = {
   apiSecret: process.env.CLOUDINARY_API_SECRET,
 };
 
+console.log(process.env.STORE_IS_LIVE);
 export const sslczConfig = {
   storeName: process.env.STORE_NAME || "travella",
   storeId: process.env.STORE_ID || "",
   storePassword: process.env.STORE_PASSWORD || "",
-  isLive: process.env.STORE_IS_LIVE || false,
+  isLive: false,
   paymentSuccessUrl: process.env.PAYMENT_SUCCESS_URL || "",
   paymentFailureUrl: process.env.PAYMENT_FAIL_URL || "",
   paymentCancelUrl: process.env.PAYMENT_CANCEL_URL || "",
