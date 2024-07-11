@@ -56,6 +56,8 @@ const calculateCost = (perPersonCost, totalPerson, tax) => {
 export const bookingInitiate = asyncHandler(async (req, res) => {
   const { tourId, totalPerson } = req.body;
   try {
+    console.log("Initiating booking");
+
     const trip = await Tour.findById(tourId).lean();
     if (!trip) throw new ApiError(404, "Trip doesn't exist");
 
@@ -130,6 +132,7 @@ export const paymentSuccess = asyncHandler(async (req, res) => {
   const { tran_id, bank_tran_id, currency, amount, store_amount, card_type } =
     req.body;
   try {
+    console.log("Payment success");
     const transaction = await Transaction.create({
       transactionId: tran_id,
       bankTransactionId: bank_tran_id,
