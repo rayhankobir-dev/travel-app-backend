@@ -173,6 +173,7 @@ export const paymentSuccess = asyncHandler(async (req, res) => {
 
 export const paymentFailed = asyncHandler(async (req, res) => {
   try {
+    console.log("Payment failed");
     return res.redirect(sslczConfig.failedRedirectUrl);
   } catch (error) {
     throw error;
