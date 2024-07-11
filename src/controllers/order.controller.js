@@ -35,7 +35,7 @@ export const getBookingById = asyncHandler(async (req, res) => {
 
 export const getUserBookings = asyncHandler(async (req, res) => {
   try {
-    const bookings = await Booking.find({ user: req.user })
+    const bookings = await Booking.find({ user: req.user, status: "SUCCESS" })
       .populate("tour")
       .populate("user")
       .populate("txHistory");
